@@ -4,6 +4,7 @@ import astroMermaid from "astro-mermaid";
 
 export default defineConfig({
   site: "https://zircote.github.io/rlm-rs",
+  base: "/rlm-rs",
   integrations: [
     astroMermaid(),
     starlight({
