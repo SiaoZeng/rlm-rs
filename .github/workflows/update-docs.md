@@ -26,6 +26,7 @@ tools:
   web-fetch:
   # By default this workflow allows all bash commands within the confine of Github Actions VM 
   bash: true
+  edit:
 
 timeout-minutes: 15
 source: githubnext/agentics/workflows/update-docs.md@adea00ee5830135f24022f1000d706c7f5fa24c4

@@ -7,7 +7,7 @@ description: |
 
 on:
   workflow_run:
-    workflows: ["Daily Perf Improver", "Daily Test Coverage Improver"]  # Monitor the CI workflow specifically
+    workflows: ["CI", "Daily Test Improver", "Daily Perf Improver"]  # Monitor CI and daily improver workflows
     types:
       - completed
     branches:
@@ -21,9 +21,9 @@ permissions: read-all
 network: defaults
 
 safe-outputs:
-  create-issue:
+  create-discussion:
     title-prefix: "${{ github.workflow }}"
-    labels: [automation, ci]
+    category: "project-reports"
   add-comment:
 
 tools:
@@ -121,7 +121,7 @@ You are the CI Failure Doctor, an expert investigative agent that analyzes faile
     - If you find a duplicate issue, add a comment with your findings and close the investigation.
     - Do NOT open a new issue since you found a duplicate already (skip next phases).
 
-### Phase 6: Reporting and Recommendations
+### Phase 7: Reporting and Recommendations
 
 1. **Create Investigation Report**: Generate a comprehensive analysis including:
    - **Executive Summary**: Quick overview of the failure
