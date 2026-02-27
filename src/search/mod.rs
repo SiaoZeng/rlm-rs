@@ -271,6 +271,8 @@ fn semantic_search(
     query: &str,
     config: &SearchConfig,
 ) -> Result<Vec<(i64, f32)>> {
+    use rayon::prelude::*;
+
     // Generate query embedding
     let query_embedding = embedder.embed(query)?;
 
@@ -281,9 +283,9 @@ fn semantic_search(
         return Ok(Vec::new());
     }
 
-    // Calculate similarities
+    // Calculate similarities in parallel (rayon data parallelism)
     let mut similarities: Vec<(i64, f32)> = all_embeddings
-        .iter()
+        .par_iter()
         .map(|(chunk_id, embedding)| {
             let sim = cosine_similarity(&query_embedding, embedding);
             (*chunk_id, sim)
@@ -880,6 +882,44 @@ mod tests {
         // (force only affects different-model embeddings)
         assert_eq!(result.skipped_count, 3);
         assert!(!result.had_changes());
+    }
+
+    #[test]
+    fn test_parallel_semantic_search() {
+        let mut storage = setup_storage_with_chunks();
+        let embedder = FallbackEmbedder::new(DEFAULT_DIMENSIONS);
+
+        // Embed all chunks so semantic_search has data to work with
+        embed_buffer_chunks(&mut storage, &embedder, 1).unwrap();
+
+        // Use a zero threshold to capture all results from the fallback embedder
+        let config = SearchConfig::new().with_top_k(10).with_threshold(0.0);
+
+        let results = semantic_search(&storage, &embedder, "test query", &config).unwrap();
+
+        // Should return results (we embedded 3 chunks)
+        assert!(!results.is_empty());
+
+        // Verify results are sorted by descending similarity
+        for window in results.windows(2) {
+            assert!(
+                window[0].1 >= window[1].1,
+                "Results should be sorted by descending similarity: {} >= {}",
+                window[0].1,
+                window[1].1,
+            );
+        }
+
+        // Verify threshold filtering: with a very high threshold, results should be excluded
+        let strict_config = SearchConfig::new().with_top_k(10).with_threshold(0.99);
+        let strict_results =
+            semantic_search(&storage, &embedder, "test query", &strict_config).unwrap();
+
+        // Strict threshold should return fewer (or no) results
+        assert!(
+            strict_results.len() <= results.len(),
+            "Strict threshold should not return more results than lenient threshold",
+        );
     }
 
     #[test]
