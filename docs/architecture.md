@@ -76,8 +76,13 @@ src/
 ├── storage/         # Persistence layer
 │   ├── mod.rs
 │   ├── traits.rs    # Storage trait definition
-│   ├── sqlite.rs    # SQLite implementation
-│   └── search.rs    # Hybrid search (semantic + BM25 with RRF)
+│   ├── schema.rs    # Database schema and migrations
+│   └── sqlite.rs    # SQLite implementation
+│
+├── search/          # Hybrid search
+│   ├── mod.rs       # Hybrid search (semantic + BM25 with RRF)
+│   ├── hnsw.rs      # HNSW vector index (usearch-hnsw feature)
+│   └── rrf.rs       # Reciprocal Rank Fusion scoring
 │
 ├── io/              # File I/O
 │   ├── mod.rs
