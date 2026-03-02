@@ -324,7 +324,9 @@ let chunks = chunker.chunk(1, "Your long text...", None)?;
 
 #### `ParallelChunker`
 
-Multi-threaded chunking using Rayon for large files.
+Multi-threaded chunking using Rayon. Wraps any `Chunker` implementation and splits the text into
+segments that are processed in parallel. Falls back to sequential processing when the input is
+smaller than the minimum threshold (default: 100 KB).
 
 ```rust
 use rlm_rs::chunking::{Chunker, ParallelChunker, SemanticChunker};
@@ -335,7 +337,16 @@ let chunker = ParallelChunker::new(inner);
 let chunks = chunker.chunk(1, "Your very large text...", None)?;
 ```
 
-**Best for:** Large files (>10MB).
+You can tune the parallelism thresholds with the builder methods:
+
+```rust
+let chunker = ParallelChunker::new(SemanticChunker::new())
+    .min_parallel_size(50_000)  // only parallelise texts >50 KB (default: 100 KB)
+    .num_segments(8);            // split into 8 segments (default: number of CPUs)
+```
+
+**Best for:** Texts larger than 100 KB; automatically falls back to single-threaded processing
+for smaller inputs.
 
 ---
 

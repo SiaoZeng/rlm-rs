@@ -189,7 +189,7 @@ pub trait Chunker: Send + Sync {
 | `SemanticChunker` | Unicode sentence/paragraph boundaries | Markdown, prose |
 | `CodeChunker` | Language-aware function/class boundaries | Source code files |
 | `FixedChunker` | Character boundaries with UTF-8 safety | Logs, raw text |
-| `ParallelChunker` | Rayon-parallelized fixed chunking | Large files (>10MB) |
+| `ParallelChunker` | Rayon-parallelized wrapper for any `Chunker` | Texts larger than 100 KB |
 
 ### Code Chunker Languages
 
