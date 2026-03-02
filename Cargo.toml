@@ -123,7 +123,7 @@ redundant_pub_crate = "allow"
 
 [features]
 default = ["fastembed-embeddings"]
-# FastEmbed semantic embeddings (ONNX-based, all-MiniLM-L6-v2, 384 dimensions)
+# FastEmbed semantic embeddings (ONNX-based, BGE-M3, 1024 dimensions)
 fastembed-embeddings = ["dep:fastembed"]
 # usearch HNSW vector search (native implementation)
 usearch-hnsw = ["dep:usearch"]
