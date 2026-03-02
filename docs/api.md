@@ -197,6 +197,24 @@ let chunk = ChunkBuilder::new()
     .build();
 ```
 
+### `estimate_tokens_for_text`
+
+Standalone utility function for estimating token counts on arbitrary text without creating a `Chunk`.
+
+**Location:** `rlm_rs::core::estimate_tokens_for_text`
+
+```rust
+use rlm_rs::core::estimate_tokens_for_text;
+
+let tokens = estimate_tokens_for_text("Hello, world!");
+```
+
+Uses a word-boundary heuristic (word count × 1.3 + punctuation × 0.5 + non-ASCII × 1.5) that is accurate to within 10–15% for mixed-language content. For the simple `size / 4` approximation, use `Chunk::estimate_tokens()` instead.
+
+| Signature | Returns | Description |
+|-----------|---------|-------------|
+| `estimate_tokens_for_text(text: &str)` | `usize` | Estimate token count for a string slice |
+
 ---
 
 ### `ChunkMetadata`
@@ -367,9 +385,12 @@ let chunks = chunker.chunk(1, rust_code, Some(&metadata))?;
 ### Factory Functions
 
 ```rust
-use rlm_rs::chunking::{create_chunker, available_strategies};
+use rlm_rs::chunking::{create_chunker, available_strategies, default_chunker};
 
-// Create chunker by name
+// Get the default chunker (semantic) without heap allocation
+let chunker = default_chunker();
+
+// Create chunker by name (returns Box<dyn Chunker>)
 let chunker = create_chunker("semantic")?;
 let chunker = create_chunker("code")?;  // Language-aware chunking
 let chunker = create_chunker("fixed")?;
@@ -378,6 +399,12 @@ let chunker = create_chunker("parallel")?;
 // List available strategies
 let strategies = available_strategies(); // ["fixed", "semantic", "code", "parallel"]
 ```
+
+| Function | Returns | Description |
+|----------|---------|-------------|
+| `default_chunker()` | `SemanticChunker` | Returns a `SemanticChunker` directly — no heap allocation, `const fn` |
+| `create_chunker(name)` | `Result<Box<dyn Chunker>>` | Create any strategy by name; errors on unknown strategy |
+| `available_strategies()` | `Vec<&'static str>` | List all recognized strategy names |
 
 ---
 
